@@ -1,5 +1,8 @@
 # BDM
 
+[![TravisCI](https://travis-ci.org/integricho/bdm.svg?branch=develop)](https://travis-ci.org/integricho/bdm)
+[![AppVeyor](https://ci.appveyor.com/api/projects/status/oa9jfqqiy34lkhio/branch/develop?svg=true)](https://ci.appveyor.com/project/integricho/bdm/branch/develop)
+
 BDM stands for Barely Dimensional Mathematics. It's a futile attempt at creating another 3d-math library for graphics programming, utilizing cutting-edge C++ features, and leaning heavily on performing as much computation as possible during compile time.
 
 The library's design-goal is to strive towards fully generic abstractions, and as such there is only a single vector, matrix, etc. template. Likewise, all the algorithms that are being implemented are expected to work on abstractions of all sizes and dimensions (provided they have a meaningful mathematical definition of course).
