@@ -1,0 +1,9 @@
+[submodule "ext/googletest"]
+	path = ext/googletest
+	url = https://github.com/google/googletest
+[submodule "ext/benchmark"]
+	path = ext/benchmark
+	url = https://github.com/google/benchmark
+[submodule "ext/glm"]
+	path = ext/glm
+	url = https://github.com/g-truc/glm
