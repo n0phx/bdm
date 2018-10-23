@@ -6,7 +6,7 @@ set_target_properties(gtest gtest_main
                       PROPERTIES FOLDER ext)
 
 set(TEST_RUNNER test_runner)
-add_executable(${TEST_RUNNER} computations_test.cpp mat_test.cpp vec_test.cpp)
+add_executable(${TEST_RUNNER} computations_test.cpp mat_test.cpp transforms_test.cpp vec_test.cpp)
 target_link_libraries(${TEST_RUNNER} PRIVATE bdm::bdm gtest_main)
 
 if(MSVC)

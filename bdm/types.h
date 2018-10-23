@@ -36,6 +36,22 @@ using vec3 = vec<3, T>;
 template <typename T>
 using vec4 = vec<4, T>;
 
+// Common vec types
+
+template <dim_t L>
+using ivec = vec<L, int>;
+
+using ivec2 = ivec<2>;
+using ivec3 = ivec<3>;
+using ivec4 = ivec<4>;
+
+template <dim_t L>
+using fvec = vec<L, float>;
+
+using fvec2 = fvec<2>;
+using fvec3 = fvec<3>;
+using fvec4 = fvec<4>;
+
 // Matrix types
 
 template <dim_t R, dim_t C, typename T>
@@ -49,5 +65,21 @@ using mat3 = mat<3, 3, T>;
 
 template <typename T>
 using mat4 = mat<4, 4, T>;
+
+// Common mat types
+
+template <dim_t R, dim_t C>
+using imat = mat<R, C, int>;
+
+using imat2 = imat<2, 2>;
+using imat3 = imat<3, 3>;
+using imat4 = imat<4, 4>;
+
+template <dim_t R, dim_t C>
+using fmat = mat<R, C, float>;
+
+using fmat2 = fmat<2, 2>;
+using fmat3 = fmat<3, 3>;
+using fmat4 = fmat<4, 4>;
 
 }  // namespace bdm

@@ -24,32 +24,35 @@ private:
 
 private:
     template <typename U, dim_t... RI>
-    constexpr mat(U val, [[maybe_unused]] dim_seq<RI...>);
+    constexpr mat(U val, dim_seq<RI...> /*unused*/);
 
     template <typename... Us, dim_t... I>
-    constexpr mat(const std::tuple<Us...>& vals, [[maybe_unused]] dim_seq<I...>);
+    constexpr mat(const std::tuple<Us...>& vals, dim_seq<I...> /*unused*/);
 
     template <typename U, dim_t... RI>
-    constexpr mat(const mat<R, C, U>& m, [[maybe_unused]] dim_seq<RI...>);
+    constexpr mat(const mat<R, C, U>& m, dim_seq<RI...> /*unused*/);
 
     template <typename... Vs, dim_t... CI>
     static constexpr row_type from_cols(const std::tuple<Vs...>& vs,
-                                        [[maybe_unused]] dim_seq<CI...>,
+                                        dim_seq<CI...> /*unused*/,
                                         dim_t element_index);
 
     template <typename... Vs, dim_t... RI>
     static constexpr mat from_cols(const std::tuple<Vs...>& vs,
-                                   [[maybe_unused]] dim_seq<RI...>);
+                                   dim_seq<RI...> /*unused*/);
 
-    template <dim_t... I>
-    static constexpr mat identity([[maybe_unused]] dim_seq<I...>);
+    template <typename U, dim_t... I>
+    static constexpr mat diagonal(U val, dim_seq<I...> /*unused*/);
+
+    template <typename U, dim_t... I>
+    static constexpr mat diagonal(const vec<C, U>& vals, dim_seq<I...> /*unused*/);
 
 public:
     template <typename U>
     constexpr explicit mat(U val);
 
     template <typename... Us, std::enable_if_t<sizeof...(Us) == R * C>* = nullptr>
-    constexpr mat(Us... vals);
+    constexpr explicit mat(Us... vals);
 
     template <typename U>
     constexpr explicit mat(const mat<R, C, U>& m);
@@ -62,6 +65,15 @@ public:
 
     template <typename... Us, std::enable_if_t<sizeof...(Us) == C>* = nullptr>
     static constexpr mat from_cols(const vec<R, Us>&... vs);
+
+    template <typename U, typename..., dim_t Y = R, dim_t X = C>
+    static constexpr std::enable_if_t<Y == X, mat> diagonal(U val);
+
+    template <typename U, typename..., dim_t Y = R, dim_t X = C>
+    static constexpr std::enable_if_t<Y == X, mat> diagonal(const vec<X, U>& vals);
+
+    template <typename... Us, std::enable_if_t<sizeof...(Us) == R>* = nullptr>
+    static constexpr mat diagonal(Us... vals);
 
     template <typename..., dim_t Y = R, dim_t X = C>
     static constexpr std::enable_if_t<Y == X, mat> identity();
@@ -92,8 +104,8 @@ public:
 
     template <dim_t... RI, dim_t... CI, dim_t RI_s = sizeof...(RI), dim_t CI_s = sizeof...(CI)>
     std::enable_if_t<(RI_s > 1 && CI_s > 1), mat<RI_s, CI_s, T>> submat(
-        [[maybe_unused]] dim_seq<RI...>,
-        [[maybe_unused]] dim_seq<CI...>) const;
+        dim_seq<RI...> /*unused*/,
+        dim_seq<CI...> /*unused*/) const;
 
     template <typename F, dim_t H = R>
     std::enable_if_t<(H < 4), mat&> apply(F func);
@@ -135,24 +147,24 @@ public:
     template <typename..., dim_t Y = R, dim_t X = C>
     std::enable_if_t<Y == X, mat&> transpose();
 
-private:
     value_type* data();
     const value_type* data() const;
 
+private:
     template <dim_t... I>
-    col_type column(dim_t col_index, [[maybe_unused]] dim_seq<I...>) const;
+    col_type column(dim_t col_index, dim_seq<I...> /*unused*/) const;
 
     template <dim_t H, dim_t W, dim_t... CI>
     typename mat<H, W, T>::row_type submat(dim_t y,
                                            dim_t x,
                                            dim_t RI,
-                                           [[maybe_unused]] dim_seq<CI...>) const;
+                                           dim_seq<CI...> /*unused*/) const;
 
     template <dim_t H, dim_t W, dim_t... RI>
-    mat<H, W, T> submat(dim_t y, dim_t x, [[maybe_unused]] dim_seq<RI...>) const;
+    mat<H, W, T> submat(dim_t y, dim_t x, dim_seq<RI...> /*unused*/) const;
 
     template <dim_t... CI, dim_t CI_s = sizeof...(CI)>
-    vec<CI_s, T> submat(dim_t RI, [[maybe_unused]] dim_seq<CI...>) const;
+    vec<CI_s, T> submat(dim_t RI, dim_seq<CI...> /*unused*/) const;
 };
 
 template <dim_t R, dim_t C, typename T>

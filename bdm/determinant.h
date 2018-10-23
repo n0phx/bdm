@@ -161,7 +161,7 @@ public:
 
 private:
     template <dim_t... Rs>
-    inline void precompute([[maybe_unused]] dim_seq<Rs...>)
+    inline void precompute(dim_seq<Rs...> /*unused*/)
     {
         (precompute<
              Rs>(make_dim_seq<seq::at<Rs - min_rank, row_combinations_per_rank>>{},
@@ -176,7 +176,7 @@ private:
     }
 
     template <dim_t Rank, dim_t RI, dim_t... CI>
-    inline void precompute([[maybe_unused]] dim_seq<CI...>)
+    inline void precompute(dim_seq<CI...> /*unused*/)
     {
         (precompute<Rank, RI, CI>(), ...);
     }
@@ -201,8 +201,7 @@ private:
     }
 
     template <dim_t Rank, dim_t R1, dim_t R2, dim_t C1, dim_t C2>
-    inline T determinant([[maybe_unused]] dim_seq<R1, R2>,
-                         [[maybe_unused]] dim_seq<C1, C2>)
+    inline T determinant(dim_seq<R1, R2> /*unused*/, dim_seq<C1, C2> /*unused*/)
     {
         return (m[R1][C1] * m[R2][C2] - m[R2][C1] * m[R1][C2]);
     }

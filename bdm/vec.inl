@@ -3,7 +3,7 @@ namespace bdm
 
 template <dim_t L, typename T>
 template <typename U, dim_t... I>
-constexpr vec<L, T>::vec(U v, [[maybe_unused]] dim_seq<I...>)
+constexpr vec<L, T>::vec(U v, dim_seq<I...> /*unused*/)
     : vec_base<L, T>{(static_cast<void>(I), v)...}
 {
 }
@@ -32,6 +32,45 @@ constexpr vec<L, T>& vec<L, T>::operator=(const vec<L, U>& rhs)
 {
     vec_base<L, T>::operator=(rhs);
     return *this;
+}
+
+template <dim_t L, typename T>
+template <dim_t S, typename U, dim_t... I, typename... Vs>
+constexpr vec<L, T>::vec(const vec<S, U>& v,
+                         dim_seq<I...> /*unused*/,
+                         Vs... values)
+    : vec_base<L, T>{v[I]..., values...}
+{
+}
+
+template <dim_t L, typename T>
+template <dim_t S,
+          typename U,
+          typename... Vs,
+          std::enable_if_t<(S < L) && (sizeof...(Vs) == (L - S))>*>
+constexpr vec<L, T>::vec(const vec<S, U>& v, Vs... values)
+    : vec(v, make_dim_seq<S>{}, values...)
+{
+}
+
+template <dim_t L, typename T>
+template <dim_t S1, dim_t S2, typename U, dim_t... I1, dim_t... I2>
+constexpr vec<L, T>::vec(const vec<S1, U>& v1,
+                         const vec<S2, U>& v2,
+                         dim_seq<I1...> /*unused*/,
+                         dim_seq<I2...> /*unused*/)
+    : vec_base<L, T>{v1[I1]..., v2[I2]...}
+{
+}
+
+template <dim_t L, typename T>
+template <dim_t S1,
+          dim_t S2,
+          typename U,
+          std::enable_if_t<S1 + S2 == L>*>
+constexpr vec<L, T>::vec(const vec<S1, U>& v1, const vec<S2, U>& v2)
+    : vec(v1, v2, make_dim_seq<S1>{}, make_dim_seq<S2>{})
+{
 }
 
 template <dim_t L, typename T>

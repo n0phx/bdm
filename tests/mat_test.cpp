@@ -4,6 +4,7 @@
 #pragma warning(pop)
 
 #include "bdm/bdm.h"
+#include "test_ext.h"
 
 TEST(MatTestConstruction, DefaultConstruct)
 {
@@ -119,6 +120,33 @@ TEST(MatTestConstruction, ConstructFromMat)
     ASSERT_EQ(m[1], v);
     ASSERT_EQ(m[2], v);
     ASSERT_EQ(m[3], v);
+}
+
+TEST(MatTestConstruction, ConstructDiagonalMatFromScalar)
+{
+    auto m = bdm::mat4<int>::diagonal(42);
+    ASSERT_EQ(m[0], bdm::vec4<int>(42, 0, 0, 0));
+    ASSERT_EQ(m[1], bdm::vec4<int>(0, 42, 0, 0));
+    ASSERT_EQ(m[2], bdm::vec4<int>(0, 0, 42, 0));
+    ASSERT_EQ(m[3], bdm::vec4<int>(0, 0, 0, 42));
+}
+
+TEST(MatTestConstruction, ConstructDiagonalMatFromScalarValues)
+{
+    auto m = bdm::mat4<int>::diagonal(1, 2, 3, 4);
+    ASSERT_EQ(m[0], bdm::vec4<int>(1, 0, 0, 0));
+    ASSERT_EQ(m[1], bdm::vec4<int>(0, 2, 0, 0));
+    ASSERT_EQ(m[2], bdm::vec4<int>(0, 0, 3, 0));
+    ASSERT_EQ(m[3], bdm::vec4<int>(0, 0, 0, 4));
+}
+
+TEST(MatTestConstruction, ConstructDiagonalMatFromVec)
+{
+    auto m = bdm::mat4<int>::diagonal(bdm::vec4<int>{42});
+    ASSERT_EQ(m[0], bdm::vec4<int>(42, 0, 0, 0));
+    ASSERT_EQ(m[1], bdm::vec4<int>(0, 42, 0, 0));
+    ASSERT_EQ(m[2], bdm::vec4<int>(0, 0, 42, 0));
+    ASSERT_EQ(m[3], bdm::vec4<int>(0, 0, 0, 42));
 }
 
 TEST(MatTestConstruction, ConstructIdentityMat)
@@ -293,17 +321,6 @@ TEST_F(MatTestOperators, TestCompoundAssignmentDivideScalar)
     ASSERT_EQ(m[2], v3 / 2);
     ASSERT_EQ(m[3], v4 / 2);
 }
-
-#define ASSERT_MAT_NEAR(m1, m2, threshold)                                     \
-    ASSERT_EQ(m1.rows, m2.rows);                                               \
-    ASSERT_EQ(m1.cols, m2.cols);                                               \
-    for (bdm::dim_t ri = 0u; ri < m1.rows; ++ri)                               \
-    {                                                                          \
-        for (bdm::dim_t ci = 0u; ci < m1.rows; ++ci)                           \
-        {                                                                      \
-            ASSERT_NEAR(m1[ri][ci], m2[ri][ci], threshold);                    \
-        }                                                                      \
-    }
 
 TEST_F(MatTestOperators, TestCompoundAssignmentDivideInitializer)
 {

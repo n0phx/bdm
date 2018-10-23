@@ -14,7 +14,7 @@ namespace impl
 {
 
 template <typename F, dim_t... Ds>
-constexpr void unrolled_invoke_n(F func, dim_seq<Ds...>)
+constexpr void unrolled_invoke_n(F func, dim_seq<Ds...> /*unused*/)
 {
     using expander = int[];
     static_cast<void>(expander{0, (static_cast<void>(func(Ds)), 0)...});
@@ -27,7 +27,7 @@ constexpr void unrolled_invoke_n(F func)
 }
 
 template <typename T, dim_t... I>
-inline T negate(const T& src, [[maybe_unused]] dim_seq<I...>)
+inline T negate(const T& src, dim_seq<I...> /*unused*/)
 {
     return T{-src[I]...};
 }

@@ -4,6 +4,7 @@
 #pragma warning(pop)
 
 #include "bdm/bdm.h"
+#include "test_ext.h"
 
 TEST(VecTestConstruction, DefaultConstructVec2)
 {
@@ -139,6 +140,27 @@ TEST(VecTestConstruction, ConstructFromScalarVecArbitrary)
     ASSERT_EQ(v[2], 42);
     ASSERT_EQ(v[3], 42);
     ASSERT_EQ(v[4], 42);
+}
+
+TEST(VecTestConstruction, ConstructFromSmallerVecAndScalars)
+{
+    bdm::vec3<int> v{1, 2, 3};
+    bdm::vec4<int> v2{v, 4};
+    ASSERT_EQ(v2.x, 1);
+    ASSERT_EQ(v2.y, 2);
+    ASSERT_EQ(v2.z, 3);
+    ASSERT_EQ(v2.w, 4);
+}
+
+TEST(VecTestConstruction, ConstructFromSmallerVecs)
+{
+    bdm::vec2<int> v1{1, 2};
+    bdm::vec2<int> v2{3, 4};
+    bdm::vec4<int> v{v1, v2};
+    ASSERT_EQ(v.x, 1);
+    ASSERT_EQ(v.y, 2);
+    ASSERT_EQ(v.z, 3);
+    ASSERT_EQ(v.w, 4);
 }
 
 TEST(VecTestOperators, AssignVec2)
@@ -535,13 +557,6 @@ TEST(VecTestMembers, TestLength)
     v2 = {0.0, 0.0, 0.0, 0.0};
     ASSERT_NEAR(v2.length(), 0.0, 0.0001);
 }
-
-#define ASSERT_VEC_NEAR(v1, v2, threshold)                                     \
-    ASSERT_EQ(v1.dimension, v2.dimension);                                     \
-    for (bdm::dim_t ri = 0u; ri < v1.dimension; ++ri)                          \
-    {                                                                          \
-        ASSERT_NEAR(v1[ri], v2[ri], threshold);                                \
-    }
 
 TEST(VecTestMembers, TestNormalize)
 {

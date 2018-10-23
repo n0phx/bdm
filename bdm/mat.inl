@@ -3,7 +3,7 @@ namespace bdm
 
 template <dim_t R, dim_t C, typename T>
 template <typename U, dim_t... RI>
-constexpr mat<R, C, T>::mat(U val, [[maybe_unused]] dim_seq<RI...>)
+constexpr mat<R, C, T>::mat(U val, dim_seq<RI...> /*unused*/)
     : values{row_type{(static_cast<void>(RI), val)}...}
 {
 }
@@ -16,7 +16,7 @@ constexpr mat<R, C, T>::mat(U val) : mat{val, make_dim_seq<R>{}}
 
 template <dim_t R, dim_t C, typename T>
 template <typename... Us, dim_t... I>
-constexpr mat<R, C, T>::mat(const std::tuple<Us...>& vals, [[maybe_unused]] dim_seq<I...>)
+constexpr mat<R, C, T>::mat(const std::tuple<Us...>& vals, dim_seq<I...> /*unused*/)
 {
     ((data()[I] = std::get<I>(vals)), ...);
 }
@@ -30,7 +30,7 @@ constexpr mat<R, C, T>::mat(Us... vals)
 
 template <dim_t R, dim_t C, typename T>
 template <typename U, dim_t... RI>
-constexpr mat<R, C, T>::mat(const mat<R, C, U>& m, [[maybe_unused]] dim_seq<RI...>)
+constexpr mat<R, C, T>::mat(const mat<R, C, U>& m, dim_seq<RI...> /*unused*/)
     : values{row_type{m[RI]}...}
 {
 }
@@ -58,7 +58,7 @@ template <dim_t R, dim_t C, typename T>
 template <typename... Vs, dim_t... CI>
 constexpr typename mat<R, C, T>::row_type mat<R, C, T>::from_cols(
     const std::tuple<Vs...>& vs,
-    [[maybe_unused]] dim_seq<CI...>,
+    dim_seq<CI...> /*unused*/,
     dim_t element_index)
 {
     return row_type{std::get<CI>(vs)[element_index]...};
@@ -67,7 +67,7 @@ constexpr typename mat<R, C, T>::row_type mat<R, C, T>::from_cols(
 template <dim_t R, dim_t C, typename T>
 template <typename... Vs, dim_t... RI>
 constexpr mat<R, C, T> mat<R, C, T>::from_cols(const std::tuple<Vs...>& vs,
-                                               [[maybe_unused]] dim_seq<RI...>)
+                                               dim_seq<RI...> /*unused*/)
 {
     return mat<R, C, T>{
         mat<R, C, T>::from_cols(vs, make_dim_seq<sizeof...(Vs)>{}, RI)...};
@@ -81,19 +81,51 @@ constexpr mat<R, C, T> mat<R, C, T>::from_cols(const vec<R, Us>&... vs)
 }
 
 template <dim_t R, dim_t C, typename T>
-template <dim_t... I>
-constexpr mat<R, C, T> mat<R, C, T>::identity([[maybe_unused]] dim_seq<I...>)
+template <typename U, dim_t... I>
+constexpr mat<R, C, T> mat<R, C, T>::diagonal(U val, dim_seq<I...> /*unused*/)
 {
     mat<R, C, T> ret{};
-    ((ret(I, I) = static_cast<T>(1)), ...);
+    ((ret(I, I) = val), ...);
     return ret;
+}
+
+template <dim_t R, dim_t C, typename T>
+template <typename U, typename..., dim_t Y, dim_t X>
+constexpr std::enable_if_t<Y == X, mat<R, C, T>> mat<R, C, T>::diagonal(U val)
+{
+    return diagonal(val, make_dim_seq<R>{});
+}
+
+template <dim_t R, dim_t C, typename T>
+template <typename U, dim_t... I>
+constexpr mat<R, C, T> mat<R, C, T>::diagonal(const vec<C, U>& vals,
+                                              dim_seq<I...> /*unused*/)
+{
+    mat<R, C, T> ret{};
+    ((ret(I, I) = vals[I]), ...);
+    return ret;
+}
+
+template <dim_t R, dim_t C, typename T>
+template <typename U, typename..., dim_t Y, dim_t X>
+constexpr std::enable_if_t<Y == X, mat<R, C, T>> mat<R, C, T>::diagonal(
+    const vec<X, U>& vals)
+{
+    return diagonal(vals, make_dim_seq<R>{});
+}
+
+template <dim_t R, dim_t C, typename T>
+template <typename... Us, std::enable_if_t<sizeof...(Us) == R>*>
+constexpr mat<R, C, T> mat<R, C, T>::diagonal(Us... vals)
+{
+    return diagonal(vec<R, T>{vals...});
 }
 
 template <dim_t R, dim_t C, typename T>
 template <typename..., dim_t Y, dim_t X>
 constexpr std::enable_if_t<Y == X, mat<R, C, T>> mat<R, C, T>::identity()
 {
-    return identity(make_dim_seq<R>{});
+    return diagonal(static_cast<T>(1));
 }
 
 template <dim_t R, dim_t C, typename T>
@@ -153,9 +185,8 @@ inline typename mat<R, C, T>::row_type mat<R, C, T>::row(dim_t row_index) const
 
 template <dim_t R, dim_t C, typename T>
 template <dim_t... RI>
-inline typename mat<R, C, T>::col_type mat<R, C, T>::column(
-    dim_t col_index,
-    [[maybe_unused]] dim_seq<RI...>) const
+inline typename mat<R, C, T>::col_type mat<R, C, T>::column(dim_t col_index,
+                                                            dim_seq<RI...> /*unused*/) const
 {
     return col_type{operator[](RI)[col_index]...};
 }
@@ -168,11 +199,10 @@ inline typename mat<R, C, T>::col_type mat<R, C, T>::col(dim_t col_index) const
 
 template <dim_t R, dim_t C, typename T>
 template <dim_t H, dim_t W, dim_t... CI>
-inline typename mat<H, W, T>::row_type mat<R, C, T>::submat(
-    dim_t y,
-    dim_t x,
-    dim_t RI,
-    [[maybe_unused]] dim_seq<CI...>) const
+inline typename mat<H, W, T>::row_type mat<R, C, T>::submat(dim_t y,
+                                                            dim_t x,
+                                                            dim_t RI,
+                                                            dim_seq<CI...> /*unused*/) const
 {
     using submat_row_type = typename mat<H, W, T>::row_type;
     return submat_row_type{operator()(y + RI, x + CI)...};
@@ -182,7 +212,7 @@ template <dim_t R, dim_t C, typename T>
 template <dim_t H, dim_t W, dim_t... RI>
 inline mat<H, W, T> mat<R, C, T>::submat(dim_t y,
                                          dim_t x,
-                                         [[maybe_unused]] dim_seq<RI...>) const
+                                         dim_seq<RI...> /*unused*/) const
 {
     return mat<H, W, T>{submat<H, W>(y, x, RI, make_dim_seq<W>{})...};
 }
@@ -198,8 +228,7 @@ inline std::enable_if_t<(H > 1 && W > 1), mat<H, W, T>> mat<R, C, T>::submat(
 
 template <dim_t R, dim_t C, typename T>
 template <dim_t... CI, dim_t CI_s>
-inline vec<CI_s, T> mat<R, C, T>::submat(dim_t RI,
-                                         [[maybe_unused]] dim_seq<CI...>) const
+inline vec<CI_s, T> mat<R, C, T>::submat(dim_t RI, dim_seq<CI...> /*unused*/) const
 {
     return vec<CI_s, T>{operator()(RI, CI)...};
 }
@@ -207,8 +236,8 @@ inline vec<CI_s, T> mat<R, C, T>::submat(dim_t RI,
 template <dim_t R, dim_t C, typename T>
 template <dim_t... RI, dim_t... CI, dim_t RI_s, dim_t CI_s>
 inline std::enable_if_t<(RI_s > 1 && CI_s > 1), mat<RI_s, CI_s, T>> mat<R, C, T>::submat(
-    [[maybe_unused]] dim_seq<RI...>,
-    [[maybe_unused]] dim_seq<CI...> col_indexes) const
+    [[maybe_unused]] dim_seq<RI...> row_indexes,
+    dim_seq<CI...> col_indexes) const
 {
     return mat<RI_s, CI_s, T>{submat(RI, col_indexes)...};
 }
@@ -428,7 +457,7 @@ template <dim_t R, dim_t S, dim_t C, typename T, dim_t... CI>
 inline typename mat<R, C, T>::row_type multiply(const mat<R, S, T>& lhs,
                                                 const mat<S, C, T>& rhs,
                                                 dim_t RI,
-                                                [[maybe_unused]] dim_seq<CI...>)
+                                                dim_seq<CI...> /*unused*/)
 {
     using row_type = typename mat<R, C, T>::row_type;
     return row_type{dot(lhs.row(RI), rhs.col(CI))...};
@@ -437,7 +466,7 @@ inline typename mat<R, C, T>::row_type multiply(const mat<R, S, T>& lhs,
 template <dim_t R, dim_t S, dim_t C, typename T, dim_t... RI>
 inline mat<R, C, T> multiply(const mat<R, S, T>& lhs,
                              const mat<S, C, T>& rhs,
-                             [[maybe_unused]] dim_seq<RI...>)
+                             dim_seq<RI...> /*unused*/)
 {
     return mat<R, C, T>{multiply(lhs, rhs, RI, make_dim_seq<C>{})...};
 }
@@ -474,7 +503,7 @@ namespace impl
 template <dim_t R, dim_t C, typename T, dim_t... CI>
 inline typename mat<R, C, T>::col_type mul_vec_mat(typename mat<R, C, T>::row_type& lhs,
                                                    const mat<R, C, T>& rhs,
-                                                   [[maybe_unused]] dim_seq<CI...>)
+                                                   dim_seq<CI...> /*unused*/)
 {
     return typename mat<R, C, T>::col_type{dot(lhs, rhs.col(CI))...};
 }
@@ -482,7 +511,7 @@ inline typename mat<R, C, T>::col_type mul_vec_mat(typename mat<R, C, T>::row_ty
 template <dim_t R, dim_t C, typename T, dim_t... RI>
 inline typename mat<R, C, T>::row_type mul_mat_vec(const mat<R, C, T>& lhs,
                                                    typename mat<R, C, T>::col_type& rhs,
-                                                   [[maybe_unused]] dim_seq<RI...>)
+                                                   dim_seq<RI...> /*unused*/)
 {
     return typename mat<R, C, T>::row_type{dot(lhs[RI], rhs)...};
 }

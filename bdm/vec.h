@@ -16,7 +16,7 @@ struct vec_base
     }
 
     template <typename... Vs, std::enable_if_t<(sizeof...(Vs) == L)>* = nullptr>
-    constexpr vec_base(Vs... vs) : values{vs...}
+    constexpr explicit vec_base(Vs... vs) : values{vs...}
     {
     }
 
@@ -30,6 +30,33 @@ struct vec_base
     constexpr vec_base& operator=(const vec_base<L, U>& v)
     {
         std::copy(std::begin(v.values), std::end(v.values), std::begin(values));
+        return *this;
+    }
+};
+
+template <typename T>
+struct vec_base<1, T>
+{
+    T x;
+
+    constexpr vec_base() : x{}
+    {
+    }
+
+    template <typename U>
+    constexpr explicit vec_base(U xv) : x{xv}
+    {
+    }
+
+    template <typename U>
+    constexpr explicit vec_base(const vec_base<1, U>& v) : vec_base{v.x}
+    {
+    }
+
+    template <typename U>
+    constexpr vec_base& operator=(const vec_base<1, U>& v)
+    {
+        x = v.x;
         return *this;
     }
 };
@@ -150,7 +177,16 @@ struct vec : vec_base<L, T>
 
 private:
     template <typename U, dim_t... I>
-    constexpr vec(U v, [[maybe_unused]] dim_seq<I...>);
+    constexpr vec(U v, dim_seq<I...> /*unused*/);
+
+    template <dim_t S, typename U, dim_t... I, typename... Vs>
+    constexpr vec(const vec<S, U>& v, dim_seq<I...> /*unused*/, Vs... values);
+
+    template <dim_t S1, dim_t S2, typename U, dim_t... I1, dim_t... I2>
+    constexpr vec(const vec<S1, U>& v1,
+                  const vec<S2, U>& v2,
+                  dim_seq<I1...> /*unused*/,
+                  dim_seq<I2...> /*unused*/);
 
 public:
     template <typename U>
@@ -165,17 +201,25 @@ public:
     template <typename U>
     constexpr vec& operator=(const vec<L, U>& rhs);
 
-private:
+    template <dim_t S,
+              typename U,
+              typename... Vs,
+              std::enable_if_t<(S < L) && (sizeof...(Vs) == (L - S))>* = nullptr>
+    constexpr explicit vec(const vec<S, U>& v, Vs... values);
+
+    template <dim_t S1, dim_t S2, typename U, std::enable_if_t<S1 + S2 == L>* = nullptr>
+    constexpr vec(const vec<S1, U>& v1, const vec<S2, U>& v2);
+
     template <typename..., dim_t S = L>
     std::enable_if_t<(S <= 4), T*> data();
     template <typename..., dim_t S = L>
-    std::enable_if_t<(S <= 4), const T*> data() const;
-    template <typename..., dim_t S = L>
     std::enable_if_t<(S > 4), T*> data();
+
+    template <typename..., dim_t S = L>
+    std::enable_if_t<(S <= 4), const T*> data() const;
     template <typename..., dim_t S = L>
     std::enable_if_t<(S > 4), const T*> data() const;
 
-public:
     T& operator[](dim_t index);
     const T& operator[](dim_t index) const;
 

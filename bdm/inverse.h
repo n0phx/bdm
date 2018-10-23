@@ -33,8 +33,8 @@ public:
 private:
     template <dim_t RI, dim_t... CI>
     inline row_type cofactors_for_row(T multiplier,
-                                      [[maybe_unused]] dim_seq<RI>,
-                                      [[maybe_unused]] dim_seq<CI...>)
+                                      dim_seq<RI> /*unused*/,
+                                      dim_seq<CI...> /*unused*/)
     {
         return row_type{
             pow(-1, static_cast<int>(RI + CI)) * multiplier *
@@ -44,13 +44,13 @@ private:
     template <dim_t... RI, dim_t... CI>
     inline mat_type transposed_cofactors(const row_type& row0_cofactors,
                                          T one_over_det,
-                                         [[maybe_unused]] dim_seq<RI...>,
-                                         dim_seq<CI...> columns)
+                                         [[maybe_unused]] dim_seq<RI...> cofactor_rows,
+                                         dim_seq<CI...> cofactor_cols)
     {
         return mat_type::from_cols(row0_cofactors * one_over_det,
                                    cofactors_for_row(one_over_det,
                                                      dim_seq<RI>{},
-                                                     columns)...);
+                                                     cofactor_cols)...);
     }
 
 public:
